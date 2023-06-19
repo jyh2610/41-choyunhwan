@@ -1,6 +1,6 @@
-const sayForm = document.querySelector(".say_nana");
-const sayInput = sayForm.querySelector("input");
-const contents = document.querySelector("#Contents");
+const sayForm = document.querySelector("#feedContainer");
+const sayInput = sayForm.querySelectorAll("input");
+const sayButtons = sayForm.querySelectorAll("button");
 
 const SAY_NANA_KEY = "saynana";
 
@@ -11,40 +11,37 @@ function saveSayNana() {
 }
 
 function deleteSayNana(event) {
-  const List = event.target.parentElement;
-
-  List.remove();
-
-  sayNanaList = sayNanaList.filter((say) => say.id !== parseInt(List.id));
+  const list = event.target.parentElement;
+  list.remove();
+  sayNanaList = sayNanaList.filter((say) => say.id !== parseInt(list.id));
   saveSayNana();
 }
 
 function paintSayNana(sayNana) {
-  const List = document.createElement("div");
-  List.id = sayNana.id;
+  const { text, id, parentElement } = sayNana;
+  const list = document.createElement("div");
+  list.id = id;
   const span = document.createElement("span");
-  span.innerText = sayNana.text;
-  const button = document.createElement("button", deleteSayNana);
+  span.innerText = text;
+  const button = document.createElement("button");
   button.innerText = "✖️";
   button.addEventListener("click", deleteSayNana);
-
-  List.appendChild(span);
-  List.appendChild(button);
-
-  contents.appendChild(List);
+  list.appendChild(span);
+  list.appendChild(button);
+  parentElement.appendChild(list);
 }
 
 function handleSayNana(event) {
   event.preventDefault();
-
+  const parentElement = event.target.parentElement;
   const newSay = sayInput.value;
-
+  newSay.length > 0 ? (btn.disabled = false) : (btn.disabled = true);
   sayInput.value = "";
   const newSayObj = {
     text: newSay,
     id: Date.now(),
+    parentElement,
   };
-
   sayNanaList.push(newSayObj);
   paintSayNana(newSayObj);
   saveSayNana();
@@ -59,3 +56,13 @@ if (savedSayNana !== null) {
   sayNanaList = parsedSayNana;
   parsedSayNana.forEach(paintSayNana);
 }
+
+function handleInputChange(event) {
+  const input = event.target;
+  const button = input.nextElementSibling;
+  input.value.length > 0 ? (button.disabled = false) : (button.disabled = true);
+}
+
+sayInput.forEach((input) => {
+  input.addEventListener("change", handleInputChange);
+});
